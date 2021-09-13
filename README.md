@@ -1,3 +1,4 @@
-# Pandoc Folder
+# Pandoc-Folder
 
-Run pandoc on all matching files in a folder, to create one output document.
+Run pandoc on all matching files in a folder, to create one output
+document.
