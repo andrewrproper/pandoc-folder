@@ -6,16 +6,11 @@
 # Run pandoc on all matching files in a folder, to create one output
 # document.
 
-
-config = {
-   'debug': True,
-   'pandoc_exe': 'pandoc.exe',
-   'require_settings_folder_name': '.pandoc-folder',
-   'open_file_manager': True,
-   'file_manager_exe': 'explorer.exe',
-}
-
-
+# =======================
+# ==== "constants"  ======
+# (not to be changed, but not actually protected by python)
+CONFIG_FILE_REL = 'pandoc-folder-config.yml'
+# =======================
 # =======================
 
 
@@ -28,6 +23,17 @@ from pprint import pprint
 from fnmatch import fnmatch
 
 # =======================
+# ===== load config =====
+script_path = Path(__file__).parent.resolve()
+config_file = path.join(script_path, CONFIG_FILE_REL)
+with open(config_file) as stream:
+   try:
+      # populate global 'config' variable
+      config = yaml.safe_load(stream)
+   except yaml.YAMLError as ex:
+      print(f"FATAL - Failed to load YAML from [{config_file}]: {ex}")
+# =======================
+
 
 
 def fatal(message):
@@ -138,7 +144,7 @@ def find_source_files(base_path, source_files_suffix):
 
 
 
-def run_pandoc(settings, found_files):
+def run_pandoc(settings, found_files, source_files_suffix):
    options = []
 
    if ( settings['pandoc_css_file'] ):
@@ -157,7 +163,7 @@ def run_pandoc(settings, found_files):
    pandoc_command = ' '.join( map(str, [ config['pandoc_exe'], *options, *arguments ]))
    debug_dump("pandoc_command:", pandoc_command)
 
-   info("running pandoc command")
+   info(f"running pandoc on {len(found_files)} {source_files_suffix} files")
    print("----")
    exit_code = os.system(pandoc_command)
    print("----")
@@ -177,18 +183,17 @@ def run_pandoc(settings, found_files):
       os.system(file_manager_command)
 
 
+
 def main():
+   debug_dump("config:", config)
 
    args_dict = parse_args()
    settings_file = args_dict['settings_file']
    if( not settings_file):
       fatal("failed to get settings_file from args")
 
-   print("")
-   print(f"  starting with settings file: {settings_file}")
-   print("")
-
-   # ===================
+   # =======================
+   # ==== load settings ====
 
    raw_settings = load_settings(settings_file)
 
@@ -201,22 +206,15 @@ def main():
 
    settings = parse_settings(settings_path, base_path, raw_settings)
 
-
-   # ===================
+   # =======================
+   # ===== run pandoc ======
 
    found_files = find_source_files(base_path, settings['source_files_suffix'])
-   info(f"found {len(found_files)} .{settings['source_files_suffix']} files")
+   debug(f"found {len(found_files)} .{settings['source_files_suffix']} files")
 
-   run_pandoc(settings, found_files)
+   run_pandoc(settings, found_files, settings['source_files_suffix'])
 
-
-
-
-   # ===================
-
-   print("")
-   print("  done.")
-   print("")
+   # =======================
 
 
 main()
