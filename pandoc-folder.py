@@ -10,8 +10,7 @@
 config = {
    'debug': True,
    'pandoc_exe': 'pandoc.exe',
-   'pandoc_settings_folder': '.pandoc-folder',
-   'pandoc_settings_file': '.pandoc-folder.yml',
+   'require_settings_folder_name': '.pandoc-folder',
    'open_file_manager': True,
    'file_manager_exe': 'explorer.exe',
 }
@@ -87,6 +86,16 @@ def get_base_path(settings_path):
       fatal(f"Failed to get parent dir of settings path: {settings_path}")
    return parent_dir
 
+def get_filename_part(in_full_file):
+   return os.path.basename(in_full_file)
+
+def get_rightmost_folder(in_path):
+   head_tail = path.split(in_path);
+   return head_tail[1]
+
+
+
+
 def path_join_norm(*args):
    return path.normpath(path.join(*args))
 
@@ -152,7 +161,8 @@ def run_pandoc(settings, found_files):
    print("----")
    exit_code = os.system(pandoc_command)
    print("----")
-   info(f"exit code: {exit_code}")
+   if ( exit_code != 0):
+      fatal(f"pandoc command failed with exit code {exit_code}")
 
    if(not path.isfile(settings['out_file'])):
       fatal(f"Failed to create output file: {settings['out_file']}")
@@ -181,9 +191,14 @@ def main():
    # ===================
 
    raw_settings = load_settings(settings_file)
+
    settings_path = get_file_path(settings_file)
    base_path = get_base_path(settings_path)
    debug_dump("base path:", base_path)
+
+   if ( get_rightmost_folder(settings_path) != config['require_settings_folder_name']):
+      fatal(f"settings folders name must be: {config['require_settings_folder_name']}")
+
    settings = parse_settings(settings_path, base_path, raw_settings)
 
 
