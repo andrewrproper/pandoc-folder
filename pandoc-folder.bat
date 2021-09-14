@@ -1,5 +1,7 @@
+@echo off
 
-@ECHO OFF
+set batch_dir=%~dp0
 
-python pandoc-folder.py %*
+python %batch_dir%pandoc-folder.py %*
 
+pause
