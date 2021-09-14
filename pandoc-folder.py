@@ -9,9 +9,11 @@
 
 config = {
    'debug': True,
-   'pandoc_exe': 'pandoc',
+   'pandoc_exe': 'pandoc.exe',
    'pandoc_settings_folder': '.pandoc-folder',
    'pandoc_settings_file': '.pandoc-folder.yml',
+   'open_file_manager': True,
+   'file_manager_exe': 'explorer.exe',
 }
 
 
@@ -19,10 +21,12 @@ config = {
 
 
 import sys
+import os
 from os import path
 from pathlib import Path
 import yaml
 from pprint import pprint
+from fnmatch import fnmatch
 
 # =======================
 
@@ -31,15 +35,18 @@ def fatal(message):
    print(f"FATAL - {message}")
    exit(1);
 
+def info(message):
+   print(f"INFO  - {message}")
+
 def debug(message):
    if (config['debug']):
       print(f"DEBUG - {message}")
+
 def debug_dump(message, object):
    if (config['debug']):
       print(f"DEBUG - === {message}")
       pprint(object)
       print(f"DEBUG - ===")
-
 
 
 def parse_args():
@@ -67,14 +74,12 @@ def load_settings(settings_file):
          fatal(f"Failed to load YAML from [{settings_file}]: {ex}")
 
    debug_dump("loaded settings:", settings)
-
    return settings
 
 
-def get_settings_path(settings_file):
+def get_file_path(settings_file):
    head_tail = path.split(settings_file);
    return head_tail[0]
-
 
 def get_base_path(settings_path):
    parent_dir = str(Path(settings_path).parents[0])
@@ -82,31 +87,84 @@ def get_base_path(settings_path):
       fatal(f"Failed to get parent dir of settings path: {settings_path}")
    return parent_dir
 
-def path_norm_join(*args):
+def path_join_norm(*args):
    return path.normpath(path.join(*args))
 
 
-def parse_settings(settings_path, base_path, settings):
-   full_path = {}
+def parse_settings(settings_path, base_path, raw_settings):
+   if ( not raw_settings['source_files_suffix']):
+      fatal("missing setting: source_files_suffix")
 
-   if ( not settings['out_file_rel']):
+   parsed = {
+      'source_files_suffix': raw_settings['source_files_suffix']
+   }
+
+   if ( not raw_settings['out_file_rel']):
       fatal("missing setting: out_file_rel")
-   if ( not type(settings['out_file_rel']) is list ):
-      fatal("settings['out_file_rel'] should be a list")
-   full_path['out_fn'] = path_norm_join(base_path, *settings['out_file_rel'])
+   if ( not type(raw_settings['out_file_rel']) is list ):
+      fatal("raw_settings['out_file_rel'] should be a list")
+   parsed['out_file'] = path_join_norm(base_path, *raw_settings['out_file_rel'])
 
-   if ( settings['pandoc_defaults_file'] ):
-      full_path['pandoc_defaults_file'] = path_norm_join(settings_path, settings['pandoc_defaults_file'] )
-   if ( settings['pandoc_meta_file'] ):
-      full_path['pandoc_meta_file'] = path_norm_join(settings_path, settings['pandoc_meta_file'] )
+   if ( raw_settings['pandoc_defaults_file'] ):
+      parsed['pandoc_defaults_file'] = path_join_norm(settings_path, raw_settings['pandoc_defaults_file'] )
+   if ( raw_settings['pandoc_meta_file'] ):
+      parsed['pandoc_meta_file'] = path_join_norm(settings_path, raw_settings['pandoc_meta_file'] )
+   if ( raw_settings['pandoc_css_file'] ):
+      parsed['pandoc_css_file'] = path_join_norm(settings_path, raw_settings['pandoc_css_file'] )
+
+   debug_dump("parsed raw_settings:", parsed)
+   return parsed
+
+
+def find_source_files(base_path, source_files_suffix):
+   pattern = f"*.{source_files_suffix}"
+   found=[]
+   for sub_path, subdirs, files in os.walk(base_path):
+      for name in files:
+         if ( fnmatch(name, pattern)):
+            full_fn = path.join(sub_path, name)
+            found.append(full_fn)
+            debug(f"found: {full_fn}")
+   return found;
+
+
+
+def run_pandoc(settings, found_files):
+   options = []
+
    if ( settings['pandoc_css_file'] ):
-      full_path['pandoc_css_file'] = path_norm_join(settings_path, settings['pandoc_css_file'] )
+      options.append( f'--css="{settings["pandoc_css_file"]}"' )
+   if ( settings['pandoc_meta_file'] ):
+      options.append( f'--metadata-file="{settings["pandoc_meta_file"]}"' )
+   if ( settings['pandoc_defaults_file'] ):
+      options.append( f'--defaults="{settings["pandoc_defaults_file"]}"' )
 
+   options.append( f'-o "{settings["out_file"]}"')
 
-   debug_dump("parsed settings:", settings)
+   arguments = []
+   for file in found_files:
+      arguments.append(f'"{file}"')
 
+   pandoc_command = ' '.join( map(str, [ config['pandoc_exe'], *options, *arguments ]))
+   debug_dump("pandoc_command:", pandoc_command)
 
-   return full_path
+   info("running pandoc command")
+   print("----")
+   exit_code = os.system(pandoc_command)
+   print("----")
+   info(f"exit code: {exit_code}")
+
+   if(not path.isfile(settings['out_file'])):
+      fatal(f"Failed to create output file: {settings['out_file']}")
+
+   bytes = path.getsize(settings['out_file']);
+   info(f"created output file ({bytes} bytes): {settings['out_file']}")
+
+   if ( config['open_file_manager']):
+      out_path = get_file_path(settings['out_file'])
+      file_manager_command = ' '.join( map(str, [ config['file_manager_exe'], out_path]))
+      info(f"opening {config['file_manager_exe']} to folder: {out_path}")
+      os.system(file_manager_command)
 
 
 def main():
@@ -122,11 +180,20 @@ def main():
 
    # ===================
 
-   settings = load_settings(settings_file)
-   settings_path = get_settings_path(settings_file)
+   raw_settings = load_settings(settings_file)
+   settings_path = get_file_path(settings_file)
    base_path = get_base_path(settings_path)
    debug_dump("base path:", base_path)
-   s = parse_settings(settings_path=settings_path, base_path=base_path, settings= settings)
+   settings = parse_settings(settings_path, base_path, raw_settings)
+
+
+   # ===================
+
+   found_files = find_source_files(base_path, settings['source_files_suffix'])
+   info(f"found {len(found_files)} .{settings['source_files_suffix']} files")
+
+   run_pandoc(settings, found_files)
+
 
 
 
