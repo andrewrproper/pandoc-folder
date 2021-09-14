@@ -1,0 +1,9 @@
+---
+pandoc_defaults_file: pandoc-defaults-epub.yml
+pandoc_meta_file: pandoc-meta.yml
+pandoc_css_file: pandoc-epub.css
+source_files_suffix: md
+out_file_rel:
+  - ..
+  - out-pandoc
+  - example-book.epub
