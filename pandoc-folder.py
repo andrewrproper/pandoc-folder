@@ -147,6 +147,11 @@ def find_source_files(base_path, source_files_suffix):
 def run_pandoc(settings, found_files, source_files_suffix):
    options = []
 
+   out_path = get_file_path(settings['out_file'])
+   if(not path.isdir(out_path)):
+      # create the path if it doesn't already exist.
+      os.makedirs(out_path,exist_ok=True)
+
    if ( settings['pandoc_css_file'] ):
       options.append( f'--css="{settings["pandoc_css_file"]}"' )
    if ( settings['pandoc_meta_file'] ):
@@ -172,6 +177,7 @@ def run_pandoc(settings, found_files, source_files_suffix):
 
    if(not path.isfile(settings['out_file'])):
       fatal(f"Failed to create output file: {settings['out_file']}")
+
 
    bytes = path.getsize(settings['out_file']);
    info(f"created output file ({bytes} bytes): {settings['out_file']}")

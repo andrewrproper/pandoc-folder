@@ -2,5 +2,5 @@
 debug: False
 pandoc_exe: 'pandoc.exe'
 require_settings_folder_name: '.pandoc-folder'
-open_file_manager: False
+open_file_manager: True
 file_manager_exe: 'explorer.exe'
