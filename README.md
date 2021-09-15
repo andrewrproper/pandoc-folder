@@ -2,9 +2,14 @@
 
 ![folder icon](img/icons/Alumin/1472849908_Documents_4--128x128.png)
 
-## VERSION
+## Version
 
 0.1.0 - initial release
+
+### Changelog
+
+See [CHANGES.md](CHANGES.md)
+
 
 ## License
 
