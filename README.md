@@ -1,5 +1,12 @@
 # Pandoc-Folder
 
+![folder icon](img/icons/Alumin/1472849908_Documents_4--128x128.png)
+
+
+## License
+
+
+
 ## Dependencies
 
 1. [python](https://www.python.org/) 3.9.7 or newer
