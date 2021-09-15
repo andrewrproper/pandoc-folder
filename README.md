@@ -2,19 +2,43 @@
 
 ## Dependencies
 
-1. python 3.9.7 or newer
-2. pandoc 2.14.2 or newer
+1. [python](https://www.python.org/) 3.9.7 or newer
+2. [pandoc](https://pandoc.org/) 2.14.2 or newer
 
 ## Purpose
 
 Run pandoc on all files with a given suffix in a folder and its
 subfolders, to create one output document.
 
+For example, it will find all markdown files in a directory and its
+subdirectories, and use pandoc to create one output file from them.
+
+This can be used to write an ebook in multiple markdown files, then
+generate a single EPUB or HTML document which includes the content
+from all of them.
+
+## Usage
+
+```
+python pandoc-folder.py ./path/to/book/.pandoc-folder/settings-file.yml
+```
+
+Or, with Windows batch file:
+
+```
+pandoc-folder.bat ./path/to/book/.pandoc-folder/settings-file.yml
+```
+
+Or, with bash script:
+
+```
+pandoc-folder.sh ./path/to/book/.pandoc-folder/settings-file.yml
+```
+
+If you add the Pandoc-Folder folder into your `PATH`, then you can run
+these commands on the command-line, from any folder.
+
 ## Arguments
-
-pandoc-folder.bat [path/to/book/.pandoc-folder/settings-file.yml]
-
-### First Argument
 
 The first argument is the filename, including path, of a
 settings file.
@@ -23,33 +47,91 @@ By default, the suffix `.pfy` is used for the file. This is really
 just a YAML file, but using a custom (and unused) extension allows
 associating it with the `pandoc-folder.bat` file, in Windows.
 
-This file is required to be under a sub-folder named `.pandoc-folder`.
+### Required Folder Structure
+
+Any settings file is required to be under a sub-folder named
+`.pandoc-folder`.  This sub-folder can be used to store all settings
+files. See the `example-book/.pandoc-folder` folder for an example.
+This keeps the files organizes, so that the files related to pandoc
+aren't mixed with your source files.
+
+Note that under Linux, the `.pandoc-folder` folder will not be shown
+by default. It will be considered a hidden folder, because it starts
+with a period (`.`). However, it is common to store settings in a
+folder starting with a period under Linux. Hopefully, this won't be a
+problem. If it is, **you can change the folder name in the
+configuration**. Or use the `-a` flag for the `ls` command, to see all
+folders, including hidden ones.
+
+### Expected Folder and File Structure
 
 The expected folder and file structure is like this:
 
 ```
-book/
+./book/
   .pandoc-folder/
     my-settings-file.pfy
 ```
-  
 
+See the `example-book/.pandoc-folder` folder for an example of how
+the files are laid out.
 
 ## Settings File Format
 
 The settings files are expected to be in [YAML](https://yaml.org/)
 format.
 
+### pandoc_defaults_file: pandoc-defaults-html.yml
 
-## Example
+Optional: specify a defaults file for pandoc to use.  This is a useful
+way to provide a number of default values for pandoc options, without
+needing to specific them on the command-line.
+
+This file should be found in the same folder as the settings file.
+
+### pandoc_meta_file: pandoc-meta.yml
+
+Optional: specify a metadata file for pandoc to read. This can be used to specify the title, author, and other fields for the book/document.
+
+This file should be found in the same folder as the settings file.
+
+### pandoc_css_file
+
+Optional: specify a CSS file for pandoc to use when formatting the
+output book. Useful for EPUB or HTML output, and possibly others.
+
+This file should be found in the same folder as the settings file.
+
+### source_files_suffix: `md`
+
+This suffix is used to find the source files. So, for a suffix of
+`md`, Pandoc-Folder will find all `*.md` files in the directory or
+subdirectories. These will all be passed to pandoc as input files.
+
+The default suffix is `md`, for converting markdown files. However,
+you could change this to another suffix that pandoc recognizes, such
+as `docx`.
+
+### out_file_rel
+
+This is an array of the directory and subdirectories up to and
+including the output file.
+
+If the output path doesn't exist, it will be created.
+
+
+
+
+## Example of Using Pandoc-Folder
 
 To build the example book:
 
 - on Windows, run: `.\build-example-book.bat`
 - on Linux, run: `./build-example-book.sh`
 
-To see how the example works, open one of these files with a text
-editor, such as: Vim, Visual Studio Code, Nano, Notepad, etc.
+To see how the command for building th example book works, open one of
+these files with a text editor (such as: Visual Studio Code, Vim,
+Nano, Notepad, etc.)
 
 
 ## Configuration
@@ -59,20 +141,20 @@ The configuration file is `pandoc-folder-config.yml`. It is in
 
 Configuration options:
 
-### pandoc_command: pandoc
+### pandoc_command: `pandoc`
 
 The name of the pandoc command to run. Normally, just `pandoc`.
 
-### require_settings_folder_name: .pandoc-folder
+### require_settings_folder_name: `.pandoc-folder`
 
 The name of the settings folder to require. If the 
 
-### debug: False
+### debug: `False`
 
 Whether to print debug output. Useful for debugging/testing the
 program, but prints too much for normal use.
 
-### open_file_manager: False
+### open_file_manager: `False`
 
 Whether to open a file manager after the pandoc command is done.
 This can be useful to show the output file. However, it can be
@@ -80,7 +162,7 @@ This can be useful to show the output file. However, it can be
 *multiple output files, because a file manager window will be opened
 *for each one!
 
-### file_manager_exe: explorer
+### file_manager_exe: `explorer`
 
 Which command to run to open the file manager. The default,
 `explorer`, works under Windows. Under Linux, it will depend on which
