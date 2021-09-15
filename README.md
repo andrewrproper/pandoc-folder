@@ -43,9 +43,13 @@ these commands on the command-line, from any folder.
 The first argument is the filename, including path, of a
 settings file.
 
+### Settings File Suffix
+
 By default, the suffix `.pfy` is used for the file. This is really
 just a YAML file, but using a custom (and unused) extension allows
 associating it with the `pandoc-folder.bat` file, in Windows.
+
+`.pfy` is short for "Pandoc-Folder YAML".
 
 ### Required Folder Structure
 
