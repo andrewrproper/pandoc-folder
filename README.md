@@ -98,6 +98,25 @@ See the `example-book/.pandoc-folder` folder for an example of how
 the files are laid out.
 
 
+### What Pandoc Command Does This Run?
+
+Here is an example of part of the output, when Debug is set to True in
+the config. This shows the pandoc command used when building the
+example ebook. You can see that the input files, ending in `.md`, are
+the last arguments. Also, they are found regardless of whether they
+are in subfolders under the `example-book` folder.
+
+```
+DEBUG - === pandoc_command:
+('pandoc --css="example-book\\.pandoc-folder\\pandoc-epub.css" '
+ '--metadata-file="example-book\\.pandoc-folder\\pandoc-meta.yml" '
+ '--defaults="example-book\\.pandoc-folder\\pandoc-defaults-epub.yml" -o '
+ '"out-pandoc\\example-book.epub" "example-book\\part-1.md" '
+ '"example-book\\part 2\\00 section.md" "example-book\\part 2\\sub-part 1.md" '
+ '"example-book\\part 2\\sub-part 2.md"')
+DEBUG - ===
+```
+
 ## Associating Pandoc-Folder to the `.pfy` File Type in Windows
 
 By default, the suffix `.pfy` is used for the settings file. This are

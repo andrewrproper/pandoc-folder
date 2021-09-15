@@ -1,5 +1,5 @@
 ---
-debug: False
+debug: True
 pandoc_command: pandoc
 require_settings_folder_name: .pandoc-folder
 open_file_manager: False
