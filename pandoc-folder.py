@@ -168,7 +168,7 @@ def run_pandoc(settings, found_files, source_files_suffix):
    pandoc_command = ' '.join( map(str, [ config['pandoc_command'], *options, *arguments ]))
    debug_dump("pandoc_command:", pandoc_command)
 
-   info(f"running pandoc on {len(found_files)} {source_files_suffix} files")
+   info(f"running pandoc on {len(found_files)} source files with suffix: {source_files_suffix}")
    print("----")
    exit_code = os.system(pandoc_command)
    print("----")
@@ -200,6 +200,9 @@ def main():
 
    # =======================
    # ==== load settings ====
+
+   info(f"Pandoc-Folder - reading settings file:")
+   info(f"  {settings_file}")
 
    raw_settings = load_settings(settings_file)
 
