@@ -58,7 +58,7 @@ def parse_args():
    this_script = str(sys.argv[0])
    if(len(sys.argv)<2):
       print("")
-      print(f"  Usage: {this_script} [path_to_folder\settings_file.yml]")
+      print(f"  Usage:   python {this_script} path_to_folder\settings_file.yml")
       print("")
       exit(1)
 
@@ -165,7 +165,7 @@ def run_pandoc(settings, found_files, source_files_suffix):
    for file in found_files:
       arguments.append(f'"{file}"')
 
-   pandoc_command = ' '.join( map(str, [ config['pandoc_exe'], *options, *arguments ]))
+   pandoc_command = ' '.join( map(str, [ config['pandoc_command'], *options, *arguments ]))
    debug_dump("pandoc_command:", pandoc_command)
 
    info(f"running pandoc on {len(found_files)} {source_files_suffix} files")
