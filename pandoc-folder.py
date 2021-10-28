@@ -1,4 +1,4 @@
-
+#!/usr/bin/python3
 
 #
 # == Pandoc-Folder ==
@@ -58,7 +58,7 @@ def parse_args():
    this_script = str(sys.argv[0])
    if(len(sys.argv)<2):
       print("")
-      print(f"  Usage:   python {this_script} path_to_folder\settings_file.yml")
+      print(f"  Usage:   python {this_script} path_to_folder\settings_file.pfy")
       print("")
       exit(1)
 
