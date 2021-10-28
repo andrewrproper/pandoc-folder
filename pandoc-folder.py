@@ -69,7 +69,7 @@ def parse_args():
 
 def load_settings(settings_file):
    if ( not path.isfile(settings_file) ):
-      fatal(f"settings file not found: {settings_file}");
+      fatal(f"settings file is not a file: {settings_file}");
 
    settings = {}
    with open(settings_file) as stream:
