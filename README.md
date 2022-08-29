@@ -22,6 +22,28 @@ See [CHANGES.md](CHANGES.md)
 1. [python](https://www.python.org/) 3.9.7 or newer
 2. [pandoc](https://pandoc.org/) 2.14.2 or newer
 
+## Installation
+
+### 1. Install module dependencies (global option)
+
+There are only a small number of dependencies to be installed.
+
+On a command line, navigate to the folder and run:
+
+```
+pip3 install -r requirements.txt
+```
+
+And that will install all required dependencies, globally.
+
+
+### 2. Installing to local folder only
+
+This is possible using [venv](https://docs.python.org/3/library/venv.html). 
+
+However, this is currently not supported by the batch files included
+with `pandoc-folder`.
+
 ## Purpose
 
 Run pandoc on all files with a given suffix in a folder and its
