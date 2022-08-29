@@ -21,6 +21,8 @@ from pathlib import Path
 import yaml
 from pprint import pprint
 from fnmatch import fnmatch
+from natsort import natsorted
+from natsort import ns
 
 # =======================
 # ===== load config =====
@@ -134,13 +136,14 @@ def parse_settings(settings_path, base_path, raw_settings):
 def find_source_files(base_path, source_files_suffix):
    pattern = f"*.{source_files_suffix}"
    found=[]
+   # https://natsort.readthedocs.io/en/master/examples.html#sort-os-generated-paths
    for sub_path, subdirs, files in os.walk(base_path):
       for name in files:
          if ( fnmatch(name, pattern)):
             full_fn = path.join(sub_path, name)
             found.append(full_fn)
             debug(f"found: {full_fn}")
-   return found;
+   return natsorted(found, alg=ns.PATH);
 
 
 
